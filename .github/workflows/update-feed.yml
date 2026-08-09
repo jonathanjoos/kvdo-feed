@@ -1,0 +1,38 @@
+name: Update KVDO calendar feeds
+
+on:
+  schedule:
+    # Twice daily at 06:00 and 18:00 UTC. Adjust if you like.
+    - cron: "0 6,18 * * *"
+  workflow_dispatch:   # lets you trigger it manually from the Actions tab
+  push:
+    branches: [ main ]
+    paths: [ "scrape.py" ]
+
+permissions:
+  contents: write   # needed so the action can commit the updated feeds
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Scrape and build feeds
+        run: python scrape.py
+
+      - name: Commit updated feeds if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain kvdo-thuis.ics kvdo-uit.ics)" ]; then
+            git add kvdo-thuis.ics kvdo-uit.ics
+            git commit -m "Update feeds $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          else
+            echo "No changes to feeds."
+          fi
