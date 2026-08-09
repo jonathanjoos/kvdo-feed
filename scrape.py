@@ -44,7 +44,11 @@ def parse_matches(html):
     text = strip_tags(section)
     text = re.sub(r"[ \t]+", " ", text)
 
-    slugs = re.findall(r"/kalender/([a-z0-9\-]+)/", section)
+    # Each match's slug link appears twice in the markup (a "meer informatie"
+    # link and a team-logo image link) — collapse consecutive duplicates back
+    # to one slug per match before indexing by match position.
+    raw_slugs = re.findall(r"/kalender/([a-z0-9\-]+)/", section)
+    slugs = [s for i, s in enumerate(raw_slugs) if i == 0 or s != raw_slugs[i - 1]]
 
     date_re = re.compile(
         r"([A-Za-zÀ-ÿ0-9 .&'\-]+?)\s+VS\s+([A-Za-zÀ-ÿ0-9 .&'\-]+?)\s+"
