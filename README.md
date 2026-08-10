@@ -9,7 +9,7 @@ Two separate calendars: **home** games and **away** games. Cup games are exclude
 
 1. `scrape.py` fetches the club calendar page, parses the scheduled matches,
    keeps only **league** games, and splits them into **home** and **away**.
-2. A GitHub Action (`.github/workflows/update-feed.yml`) runs it twice a day,
+2. A GitHub Action (`.github/workflows/update-feed.yml`) runs it once a day,
    regenerates both `.ics` files, and commits them back if anything changed.
 3. Your calendar app subscribes to the raw file URLs and re-checks them
    periodically, so date changes on the website flow through automatically.
